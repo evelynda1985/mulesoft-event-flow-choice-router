@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="interfaceFlow" doc:id="1af7d056-b57b-4fbf-8ed9-fb590ad1c1e6" >
+		<http:listener doc:name="Listener" doc:id="21a7e075-850d-429c-8f6e-cbf3c5883b17" config-ref="HTTP_Listener_config" path="/*/{id}"/>
+		<set-variable value="#[attributes.queryParams.id]" doc:name="Set Variable" doc:id="01e1e3a6-504e-4fe7-94fc-5ed961bd3a4e" variableName="id"/>
+		<choice doc:name="Choice" doc:id="14a3ca79-b0ab-4cc4-b591-a601fd8ee0a8" >
+			<when expression="#[attributes.requestPath contains /CUSTOMER/]">
+				<flow-ref doc:name="Flow Reference" doc:id="b4646954-190f-4d6e-bafc-5b9b270c794a" name="getCustomerbByIdFlow"/>
+			</when>
+			<when expression="#[attributes.requestPath contains /INVOICE/]">
+				<flow-ref doc:name="Flow Reference" doc:id="5e5b8a9e-232f-45a3-81fa-157440802b61" name="getInvoiceByIdFlow"/>
+			</when>
+			<when expression="#[attributes.requestPath contains /ITEMS/]">
+				<flow-ref doc:name="Flow Reference" doc:id="1b145ed6-63e0-42d5-8617-ed899734cc7c" name="getItemByIdFlow"/>
+			</when>
+			<when expression="#[attributes.requestPath contains /PRODUCT/]">
+				<flow-ref doc:name="Flow Reference" doc:id="e85eec1d-8128-426b-9d9a-bb9da34df321" name="getProductByIdFlow"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="7ebf18e5-ead4-4aa6-863b-20e293ed1550" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"The request uri is not found"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
